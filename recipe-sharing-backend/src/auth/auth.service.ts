@@ -1,17 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from '../users/user.entity';
+import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
 
@@ -19,7 +16,7 @@ export class AuthService {
     const { email, password, username } = registerDto;
 
     // Provjera postoji li korisnik s istim emailom
-    const user = await this.usersRepository.findOne({ where: { email } });
+    const user = this.usersService.findAll().find(u => u.email === email);
     if (user) {
       throw new Error('User already exists');
     }
@@ -27,9 +24,12 @@ export class AuthService {
     // Hashiranje lozinke
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Spremanje korisnika u bazu
-    const newUser = this.usersRepository.create({ email, password: hashedPassword, username });
-    await this.usersRepository.save(newUser);
+    // Kreiraj korisnika u memoriji
+    const newUser = this.usersService.create({
+      email,
+      password: hashedPassword,
+      username: username,
+    });
 
     return newUser;
   }
@@ -38,7 +38,7 @@ export class AuthService {
     const { email, password } = loginDto;
 
     // Pronađi korisnika po emailu
-    const user = await this.usersRepository.findOne({ where: { email } });
+    const user = this.usersService.findAll().find(u => u.email === email);
     if (!user) {
       throw new Error('Invalid credentials');
     }
