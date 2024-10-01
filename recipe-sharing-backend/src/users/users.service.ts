@@ -1,26 +1,32 @@
 import { Injectable } from '@nestjs/common';
-import { User } from './user.entity';
+import { User } from './user.interface'; // Importiraj User interface
 
 @Injectable()
 export class UsersService {
   // In-memory niz korisnika
   private users: User[] = [];
 
-  findAll(): User[] {
-    return this.users;
+  // Funkcija sada vraća Promise<User[]>
+  findAll(): Promise<User[]> {
+    return Promise.resolve(this.users);
   }
 
-  findOne(id: number): User {
-    return this.users.find(user => user.id === id);
+  // Funkcija sada vraća Promise<User>
+  findOne(id: number): Promise<User> {
+    const user = this.users.find(user => user.id === id);
+    return Promise.resolve(user);
   }
 
-  create(user: Partial<User>): User {
-    const newUser = { id: Date.now(), ...user }; // Dodaj ID korisniku
-    this.users.push(newUser as User);
-    return newUser as User;
+  // Funkcija vraća Promise<User>
+  create(user: Partial<User>): Promise<User> {
+    const newUser: User = { id: Date.now(), ...user } as User; // Dodaj ID korisniku
+    this.users.push(newUser);
+    return Promise.resolve(newUser);
   }
 
-  remove(id: number): void {
+  // Funkcija sada vraća Promise<void>
+  async remove(id: number): Promise<void> {
     this.users = this.users.filter(user => user.id !== id);
+    return Promise.resolve();
   }
 }

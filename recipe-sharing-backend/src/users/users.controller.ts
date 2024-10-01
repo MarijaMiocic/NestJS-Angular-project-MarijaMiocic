@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Delete, Post, Body } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from './user.entity';
+import { User } from '../users/user.interface'; // Import interfejsa umjesto entiteta
 import { AuthService } from '../auth/auth.service'; // Import AuthService
 import { RegisterDto } from '../auth/dto/register.dto'; // Import RegisterDto
 import { LoginDto } from '../auth/dto/login.dto'; // Import LoginDto
